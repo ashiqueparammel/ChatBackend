@@ -1,20 +1,15 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import myTokenObtainPairSerializer
+from .models import User
 # Create your views here.
 class Google_Signup(APIView):
     def post(self, request):
         email = request.data.get("email")
-        is_company = request.data.get("is_company")
 
-        if not CustomUser.objects.filter(email=email).exists():
-            if is_company == "":
-                data = {
-                    "Text": "Your not Signed Please signup !",
-                    "status": 204,
-                }
-                return Response(data=data)
+        if not User.objects.filter(email=email).exists():
             serializer = User_Sign_Up(data=request.data)
             if serializer.is_valid():
                 user = serializer.save()
@@ -25,7 +20,7 @@ class Google_Signup(APIView):
                     "status": 200,
                 }
                 return Response(data=data)
-        if CustomUser.objects.filter(email=email).exists():
+        elif User.objects.filter(email=email).exists():
             data = {
                 "Text": "This Email alredy exist!",
                 "status": 403,
@@ -41,7 +36,7 @@ class Google_login(APIView):
     def post(self, request):
         email = request.data.get("email")
 
-        if CustomUser.objects.filter(email=email).exists():
+        if User.objects.filter(email=email).exists():
             access_token = request.data.get("access_token")
             Googleurl = config("GOOGLE_VERYFY")
             get_data = f"{Googleurl}access_token={access_token}"
@@ -51,12 +46,11 @@ class Google_login(APIView):
                 user_data = response.json()
                 check_email = user_data["email"]
                 if check_email == email:
-                    user = CustomUser.objects.get(email=email)
+                    user = User.objects.get(email=email)
                     token = RefreshToken.for_user(user)
                     token["email"] = user.email
                     token["is_active"] = user.is_active
                     token["is_superuser"] = user.is_superuser
-                    token["is_company"] = user.is_company
                     token["is_google"] = user.is_google
                     dataa = {
                         "refresh": str(token),
@@ -89,3 +83,7 @@ class Google_login(APIView):
                 "status": 403,
             }
             return Response(data=data)
+
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = myTokenObtainPairSerializer
