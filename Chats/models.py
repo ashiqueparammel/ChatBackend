@@ -8,5 +8,5 @@ class Message(models.Model):
     message = models.TextField(null=True, blank=True)
     thread_name = models.CharField(null=True, blank=True, max_length=200)
     timestamp = models.DateTimeField(auto_now_add=True)
-    seder_delete = models.BooleanField(default=False)
+    sender_delete = models.BooleanField(default=False)
     receiver_delete = models.BooleanField(default=False)
