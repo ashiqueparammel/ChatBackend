@@ -56,7 +56,7 @@ class Google_login(APIView):
                     token["is_active"] = user.is_active
                     token["is_superuser"] = user.is_superuser
                     token["is_google"] = user.is_google
-                    dataa = {
+                    user_token = {
                         "refresh": str(token),
                         "access": str(token.access_token),
                     }
@@ -64,14 +64,14 @@ class Google_login(APIView):
                     if user.is_active:
                         data = {
                             "message": "Your Login successfully! ",
-                            "status": 201,
-                            "token": dataa,
+                            "status": 200,
+                            "token": user_token,
                         }
                     else:
                         data = {
                             "message": "Your Account has been blocked ! ",
                             "status": 202,
-                            "token": dataa,
+                            "token": user_token,
                         }
 
                     return Response(data=data)
