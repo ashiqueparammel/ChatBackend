@@ -64,7 +64,7 @@ class MessageDelete(APIView):
 
 class CleanHistory(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     def post(self, request, *args, **kwargs):
         if request.user.is_activated:
             requested_user = request.user
@@ -81,9 +81,6 @@ class CleanHistory(APIView):
         except Message.DoesNotExist:
             return Response({'error': 'Message not found or user is not the sender or receiver'}, status=status.HTTP_404_NOT_FOUND)
         
-        print(sended_messages, '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-        print(received_messages, '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
-
 
         for message in sended_messages:
 
