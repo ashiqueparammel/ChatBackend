@@ -10,3 +10,6 @@ class Message(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     sender_delete = models.BooleanField(default=False)
     receiver_delete = models.BooleanField(default=False)
+
+
+

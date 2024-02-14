@@ -34,7 +34,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    # 'daphne',
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'chats',
     'users',
     
-    # 'channels',
+    'channels',
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
@@ -82,7 +82,9 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'RealChat.wsgi.application'
+ASGI_APPLICATION = 'RealChat.asgi.application'
+
+# WSGI_APPLICATION = 'RealChat.wsgi.application'
 
 
 # Database
