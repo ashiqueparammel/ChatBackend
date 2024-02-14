@@ -2,8 +2,12 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import myTokenObtainPairSerializer
+from .serializers import User_Sign_Up, myTokenObtainPairSerializer
 from .models import User
+from decouple import config
+from rest_framework_simplejwt.tokens import RefreshToken
+import requests
+
 # Create your views here.
 class Google_Signup(APIView):
     def post(self, request):
@@ -17,7 +21,7 @@ class Google_Signup(APIView):
                 data = {
                     "Text": "Your google SignUp successfully!",
                     "signup": "signup",
-                    "status": 200,
+                    "status": 201,
                 }
                 return Response(data=data)
         elif User.objects.filter(email=email).exists():
