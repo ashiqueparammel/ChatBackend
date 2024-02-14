@@ -13,5 +13,8 @@ class User(AbstractUser):
     )
     phone_number = PhoneNumberField(blank=True)
     is_google = models.BooleanField(default=False)
+    
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username"]
 
 
