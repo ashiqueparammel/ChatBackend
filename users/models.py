@@ -13,5 +13,5 @@ class User(AbstractUser):
     )
     phone_number = PhoneNumberField(blank=True)
     is_google = models.BooleanField(default=False)
-    is_company = models.BooleanField(default=False)
+
 

@@ -1,12 +1,13 @@
 from django.shortcuts import render
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView
-from .serializers import ChatMessageSerializer
+from .serializers import ChatMessageSerializer, UserSerializer
 from .models import Message
 from django.db.models import Q
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
+from users.models import User
 # Create your views here.
 
 
@@ -96,4 +97,17 @@ class CleanHistory(APIView):
 
 
 
+
+class ConnectionList(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user_id=int(self.kwargs['user_id'])
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
