@@ -104,7 +104,7 @@ class CleanHistory(APIView):
 
 
 class ConnectionList(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         user_id = int(self.kwargs['user_id'])

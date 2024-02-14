@@ -32,9 +32,14 @@ class UserSerializer(serializers.ModelSerializer):
         for message in received_messages:
             connections.add(message.sender_id)
 
-        connected_users = User.objects.filter(
-            id__in=connections).exclude(id=user.id)
+        blocked_users = BlockedUser.objects.filter(user=user)
+        blocked_user_ids = blocked_users.values_list('blocked_users', flat=True)
+
+        connected_user_ids = set(connections) - set(blocked_user_ids)
+        connected_users = User.objects.filter(id__in=connected_user_ids)
+
         return connected_users.values('id', 'username', 'email', 'profile_image', 'profile_cover_image', 'phone_number', 'is_google')
+
 
 
 class BlockedUserSerializer(serializers.ModelSerializer):
