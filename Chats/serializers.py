@@ -1,4 +1,7 @@
-from .models import User, Message
+# from django.contrib.auth.models import User
+from .models import BlockedUser,Message
+from users.models import User 
+
 from rest_framework import serializers
 from .models import Message
 
@@ -31,4 +34,20 @@ class UserSerializer(serializers.ModelSerializer):
 
         connected_users = User.objects.filter(
             id__in=connections).exclude(id=user.id)
-        return connected_users.values('id', 'username', 'email', 'profile_image', 'profile_cover_image', 'phone_number', 'is_google' )
+        return connected_users.values('id', 'username', 'email', 'profile_image', 'profile_cover_image', 'phone_number', 'is_google')
+
+
+class BlockedUserSerializer(serializers.ModelSerializer):
+    blocked_users = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=User.objects.all())
+
+    class Meta:
+        model = BlockedUser
+        fields = ['user', 'blocked_users']
+
+    def create(self, validated_data):
+        blocked_users_data = validated_data.pop('blocked_users')
+        blocked_user = BlockedUser.objects.create(**validated_data)
+        for user_data in blocked_users_data:
+            blocked_user.blocked_users.add(user_data)
+        return blocked_user
