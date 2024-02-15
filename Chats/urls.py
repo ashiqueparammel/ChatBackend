@@ -6,6 +6,7 @@ urlpatterns=[
     path('clear_history/', views.CleanHistory.as_view()),
 
     path('connections/<int:user_id>/', views.ConnectionList.as_view()),   # all the connections
+    path('search/', views.ChatSearch.as_view()), 
 
 
 

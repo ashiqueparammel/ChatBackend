@@ -7,8 +7,89 @@ from .models import User
 from decouple import config
 from rest_framework_simplejwt.tokens import RefreshToken
 import requests
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_str, force_bytes
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.urls import reverse
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
+from rest_framework.generics import GenericAPIView
+from django.http import HttpResponseRedirect
 
 # Create your views here.
+
+class Signup(APIView):
+    template_name = "account_activation.html"
+
+    def post(self, request):
+        serializer = User_Sign_Up(data=request.data)
+        data = request.data
+        if serializer.is_valid():
+            user = serializer.save()
+            token = default_token_generator.make_token(
+                user
+            )  # Create a verification token
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            verification_url = reverse(
+                "verify-user", kwargs={"uidb64": uid, "token": token}
+            )  # Construct the verification URL
+            context = {
+                "user": user,
+                "verification_url": request.build_absolute_uri(
+                    verification_url
+                ),  # Render the HTML content of the email
+            }
+            email_html_message = render_to_string(
+                "account_activation.html", context
+            )
+            # Send the verification email
+            subject = "Real Chat | Activate Your Account"
+            from_email = "cootinternational@gmail.com"
+            recipient_list = [user.email]
+
+            send_mail(
+                subject,
+                email_html_message,
+                from_email,
+                recipient_list,
+                html_message=email_html_message,
+                fail_silently=True,
+            )
+
+            # print(is_sent,'------------> is sent')
+            data = {"Text": "registered", "status": 201}
+            return Response(data=data)
+        else:
+            statusText = serializer.errors
+            data = {"Text": statusText, "status": 404}
+            return Response(data=data)
+
+
+class VerifyUserView(GenericAPIView):
+    def get(self, request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+            if default_token_generator.check_token(user, token):
+                user.is_active = True
+                user.save()
+                message = "Congrats! Account activated!"
+                url = config("front_end_url")
+                redirect_url = f"{url}login" + "?message=" + message
+                return HttpResponseRedirect(redirect_url)
+            else:
+                message = "Activation Link expired, please register again."
+                url = config("front_end_url")
+                redirect_url = f"{url}signup" + "?message=" + message
+                return HttpResponseRedirect(redirect_url)
+        except Exception as e:
+            message = "Activation Link expired, please register again."
+            url = config("front_end_url")
+            redirect_url = f"{url}signup" + "?message=" + message
+            return HttpResponseRedirect(redirect_url)
+
+
+
 class Google_Signup(APIView):
     def post(self, request):
         email = request.data.get("email")

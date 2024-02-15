@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.http import JsonResponse
 from .serializers import BlockedUserSerializer
 from .models import BlockedUser
 from django.shortcuts import render
@@ -12,6 +13,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from users.models import User
 from django.shortcuts import get_object_or_404
+from rest_framework.filters import SearchFilter
 
 # Create your views here.
 
@@ -101,13 +103,16 @@ class CleanHistory(APIView):
             message.receiver_delete = True
             message.save()
         return Response({'success': 'History cleared successfully'}, status=status.HTTP_200_OK)
+    
+
 
 
 class ConnectionList(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         user_id = int(self.kwargs['user_id'])
+        
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
@@ -143,6 +148,14 @@ class BlockedUsersList(APIView):
 
 
 from rest_framework.exceptions import ValidationError
+
+
+class ChatSearch(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = User.objects.filter(is_superuser=False, is_active=True)
+    filter_backends = [SearchFilter]
+    search_fields = ["username", "email",'phone_number']
+    serializer_class = UserSerializer
 
 class UnblockUser(APIView):
     def post(self, request, *args, **kwargs):

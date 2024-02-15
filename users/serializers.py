@@ -17,7 +17,6 @@ class User_Sign_Up(ModelSerializer):
         user = User(
             username=self._validated_data["username"],
             email=self._validated_data["email"],
-            phone_number=self._validated_data["phone_number"],
             password=self._validated_data["password"],
             is_active=False,
         )
