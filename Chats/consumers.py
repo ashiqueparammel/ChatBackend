@@ -50,10 +50,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
 
         message = data["message"]
-
         sender_username = data["senderUsername"]
 
-        reciever_username = data["receiverUsername"]
+        reciever_username = data["recieverUsername"]
 
         sender = await self.get_user(sender_username)
         receiver = await self.get_user(reciever_username)
