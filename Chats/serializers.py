@@ -7,11 +7,11 @@ from .models import Message
 
 
 class ChatMessageSerializer(serializers.ModelSerializer):
+    sender_email=serializers.EmailField(source='sender.email')
     class Meta:
         model = Message
         # fields = ['message', 'sender_email']
         fields = '__all__'
-
 
 class UserSerializer(serializers.ModelSerializer):
     connections = serializers.SerializerMethodField()

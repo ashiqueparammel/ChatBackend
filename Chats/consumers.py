@@ -122,7 +122,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         for instance in Message.objects.filter(thread_name=self.room_group_name):
 
-            messages = MessageSerializer(instance).data
+            messages = ChatMessageSerializer(instance).data
         return messages
 
     @database_sync_to_async

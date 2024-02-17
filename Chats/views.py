@@ -21,14 +21,16 @@ from rest_framework.filters import SearchFilter
 class MessageListView(ListAPIView):
     serializer_class = ChatMessageSerializer
     permission_classes = [IsAuthenticated]
-
+            
     def get_queryset(self):
-        user1 = int(self.kwargs['user1'])    # the one who sending  the message
-        user2 = int(self.kwargs['user2'])    # the one who receives the message
-
+        user1 = int(self.kwargs['user1'])    
+        user2 = int(self.kwargs['user2'])    
         queryset = Message.objects.filter(
-            Q(sender=user1), Q(receiver=user2), Q(sender_delete=False))
+            (Q(sender=user1, receiver=user2) & Q(sender_delete=False)) |
+            (Q(sender=user2, receiver=user1) & Q(receiver_delete=False)),  
+        )
         return queryset
+    
 
 
 class MessageDelete(APIView):
