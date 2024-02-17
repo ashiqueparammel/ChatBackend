@@ -14,7 +14,7 @@ from django.core.asgi import get_asgi_application
 import os
 import django
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'RealChat.settings')
 django.setup()
 
 
