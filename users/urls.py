@@ -9,4 +9,5 @@ urlpatterns = [
     path('google_signup/', Google_Signup.as_view(), name = 'google_signup'),
     path('token/', MyTokenObtainPairView.as_view(), name='MyTokenObtainPairView'),
     path('token/refresh/',jwt_views.TokenRefreshView.as_view(),name ='token_refresh'),
+    path('logout/',logout.as_view(),name ='logout'),
 ]

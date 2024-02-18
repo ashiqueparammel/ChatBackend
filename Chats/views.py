@@ -37,13 +37,12 @@ class MessageDelete(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        if request.user:
-            requested_user = request.user            # if there is  credentials passing
-        else:
-            user_id = request.data.get('user_id')    # requested user id
+        # if request.user:
+        #     requested_user = request.user            # if there is  credentials passing
+        # else:
+        user_id = request.data.get('user_id')    # requested user id
 
         message_id = request.data.get('message_id')  # message id
-
         if message_id is None or user_id is None:
             return Response({'error': 'Both message_id and user_id must be provided'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -76,11 +75,11 @@ class CleanHistory(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        if request.user.is_activated:
-            requested_user = request.user
-        else:
+        # if request.user.is_activated:
+        #     requested_user = request.user
+        # else:
             # the one who wanted to clear the history
-            requested_user = request.data.get('requested_user')
+        requested_user = request.data.get('requested_user')
         # the other user that he's chatting with to be delete the message with
         second_user = request.data.get('second_user')
 

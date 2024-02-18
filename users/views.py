@@ -15,6 +15,8 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from rest_framework.generics import GenericAPIView
 from django.http import HttpResponseRedirect
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
 
 # Create your views here.
 
@@ -172,3 +174,20 @@ class Google_login(APIView):
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = myTokenObtainPairSerializer
+    
+    
+class logout(APIView):
+    permission_classes = [IsAuthenticated]
+
+
+    def post(self, request):
+        try:
+            refresh_token = request.data["refresh_token"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response({"detail": "Logout successful."}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {"detail": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST
+            )    
