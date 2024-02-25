@@ -4,7 +4,7 @@ from .serializers import BlockedUserSerializer
 from .models import BlockedUser
 from django.shortcuts import render
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView,RetrieveUpdateDestroyAPIView
 from .serializers import ChatMessageSerializer, UserSerializer
 from .models import Message
 from django.db.models import Q
@@ -37,31 +37,20 @@ class MessageDelete(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        # if request.user:
-        #     requested_user = request.user            # if there is  credentials passing
-        # else:
-        user_id = request.data.get('user_id')    # requested user id
-
-        message_id = request.data.get('message_id')  # message id
+        user_id = request.data.get('user_id')    
+        message_id = request.data.get('message_id')  
         if message_id is None or user_id is None:
             return Response({'error': 'Both message_id and user_id must be provided'}, status=status.HTTP_400_BAD_REQUEST)
-
         try:
-            # Check if the user is the sender
             message = Message.objects.get(id=message_id, sender_id=user_id)
         except Message.DoesNotExist:
             try:
-                # Check if the user is the receiver
                 message = Message.objects.get(
                     id=message_id, receiver_id=user_id)
             except Message.DoesNotExist:
                 return Response({'error': 'Message not found or user is not the sender or receiver'}, status=status.HTTP_404_NOT_FOUND)
-
-        # Check if the message is already marked as deleted
         if message.sender_delete and message.receiver_delete:
             return Response({'error': 'Message already marked as deleted'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Mark the message as deleted
         if message.sender_id == user_id:
             message.sender_delete = True
         elif message.receiver_id == user_id:
@@ -75,17 +64,10 @@ class CleanHistory(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        # if request.user.is_activated:
-        #     requested_user = request.user
-        # else:
-            # the one who wanted to clear the history
         requested_user = request.data.get('requested_user')
-        # the other user that he's chatting with to be delete the message with
         second_user = request.data.get('second_user')
-
         if requested_user and second_user is None:
             return Response({'error': 'requested user id and second user id must be provided'}, status=status.HTTP_400_BAD_REQUEST)
-
         try:
             sended_messages = Message.objects.filter(
                 sender_id=requested_user, receiver_id=second_user)
@@ -93,9 +75,7 @@ class CleanHistory(APIView):
                 receiver_id=requested_user, sender_id=second_user)
         except Message.DoesNotExist:
             return Response({'error': 'Message not found or user is not the sender or receiver'}, status=status.HTTP_404_NOT_FOUND)
-
         for message in sended_messages:
-
             print(message)
             message.sender_delete = True
             message.save()
@@ -178,5 +158,36 @@ class UnblockUser(APIView):
 
         blocked_user.unblock_user(user_to_unblock)
         return Response({'success': 'Unblocked successfully'}, status=status.HTTP_200_OK)
+    
+    
+class MessageDeleteEveryOne(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        user_id = request.data.get('user_id')    
+        message_id = request.data.get('message_id')  
+        if message_id is None or user_id is None:
+            return Response({'error': 'Both message_id and user_id must be provided'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            message = Message.objects.get(id=message_id, sender_id=user_id)
+        except Message.DoesNotExist:
+            try:
+                message = Message.objects.get(
+                    id=message_id, receiver_id=user_id)
+            except Message.DoesNotExist:
+                return Response({'error': 'Message not found or user is not the sender or receiver'}, status=status.HTTP_404_NOT_FOUND)
+        if message.sender_delete and message.receiver_delete:
+            return Response({'error': 'Message already marked as deleted'}, status=status.HTTP_400_BAD_REQUEST)
+        if message.sender_id == user_id:
+            message.sender_delete = True
+            message.receiver_delete = True
+            
+        elif message.receiver_id == user_id:
+            message.sender_delete = True
+            message.receiver_delete = True
+        message.save()
+
+        return Response({'success': 'Message marked as deleted'}, status=status.HTTP_200_OK)
+     
 
 
